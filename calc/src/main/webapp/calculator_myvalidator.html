@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Калькулятор</title>
+    <!-- CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" media="screen">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+
+    <div class="row">
+        <div class="panel panel-default col-md-5">
+            <div class="panel-body">
+                <form name="calc" id="calc" method="get" action="calculator">
+                    <div class="form-group" id="digitInput">
+                        <label for="digit">Введите число</label>
+                        <input type="text" class="form-control" id="digit" name="digit">
+                        <div class="error" id="error-message"></div>
+                    </div>
+
+                    <div id="last">
+                        <div class="panel panel-default">
+                            <div class="panel-body lastDigit"></div>
+                        </div>
+
+                        <div class="panel panel-default">
+                            <div class="panel-body lastOper"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button onclick="myValidator('calc', 'plus')" type="button" name="mathaction" class="btn btn-primary col-md-4 col-xs-4 math">+</button>
+                        <button onclick="myValidator('calc', '-')" type="button" name="mathaction" class="btn btn-primary col-md-4 col-xs-4 math">-</button>
+                        <button onclick="myValidator('calc', '*')" type="button" name="mathaction" class="btn btn-primary col-md-4 col-xs-4 math">&#xD7;</button>
+                        <button onclick="myValidator('calc', '/')" type="button" name="mathaction" class="btn btn-primary col-md-4 col-xs-4 math">&#x00F7;</button>
+                        <button onclick="myValidator('calc', '=')" type="button" name="mathaction" class="btn btn-primary col-md-4 col-xs-4 math">=</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="http://code.jquery.com/jquery-latest.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.15.1/jquery.validate.js"></script>
+
+<script>
+    var     form = $('#calc'),
+            digit = $('#digit'),
+            checker = false
+    $(document).ready(function () {
+        jQuery.validator.addMethod("numbers", function(value, element) {
+            return this.optional(element) || /^-?\d+([.,]\d+)?/.test(value);
+        }, "\<p class='error'>Введите число!</p>");
+
+    });
+
+    function calculate(digit, mathaction) {
+        var     xhq = new XMLHttpRequest();
+        xhq.open('POST', "calculator", false);
+        xhq.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+        xhq.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhq.send("digit="+digit+"&mathaction="+mathaction);
+        $('#last').html(xhq.responseText);
+    }
+
+    function myValidator(form, obj) {
+        var pattern = /^-?\d+([.,]\d+)?/;
+        formInput = document.forms[form]['digit'].value;
+        if(formInput.length == 0) {
+            document.getElementById("error-message").innerHTML = "Введите хотя бы одну цифру!";
+            document.getElementById("error-message").classList.add("show");
+            checker = false;
+        } else if(!pattern.test(formInput)) {
+            document.getElementById("error-message").innerHTML = "Введите число!";
+            document.getElementById("error-message").classList.add("show");
+            checker = false;
+        } else {
+            document.getElementById("error-message").classList.remove("show");
+            checker = true;
+        }
+
+        if(checker) calculate(document.forms[form]['digit'].value,obj);
+    }
+</script>
+</body>
